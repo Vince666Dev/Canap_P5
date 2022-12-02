@@ -22,18 +22,18 @@ fetch(`http://localhost:3000/api/products/${id}`)
 
 
 
-    const showProduct = (productsData) => {
+    const showProduct = (productData) => {
         // injection dans le HTML des variables images, alt, name, price, description dans leur emplacement respectifs.
-        document.querySelector(".item__img").innerHTML = `<img src="${productsData.imageUrl}" alt="${productsData.altTxt}">`;
-        document.getElementById("title").innerHTML = productsData.name;
-        document.getElementById("price").innerHTML = productsData.price;
-        document.getElementById("description").innerHTML = productsData.description; 
+        document.querySelector(".item__img").innerHTML = `<img src="${productData.imageUrl}" alt="${productData.altTxt}">`;
+        document.getElementById("title").innerHTML = productData.name;
+        document.getElementById("price").innerHTML = productData.price;
+        document.getElementById("description").innerHTML = productData.description; 
         // modification du nom de l'onglet
         const productPageName = document.querySelector("title")
-        productPageName.innerHTML = productsData.name;
+        productPageName.innerHTML = productData.name;
         
         // boucle qui va récupérer les "color" présentent dans "colors"
-        for (const color of productsData.colors) {
+        for (const color of productData.colors) {
             // on crée un élément HTML "option" auquel on définie en attribut "value", une de nos "color"
             const colorOption = document.createElement("option");
             colorOption.innerHTML = color;
@@ -42,7 +42,7 @@ fetch(`http://localhost:3000/api/products/${id}`)
         }
     }
 
-    function addToCartValidation(productsData) {
+    function addToCartValidation(productData) {
         const addToCartBtn = document.getElementById("addToCart");
         addToCartBtn.addEventListener("click", () => {
             // event.preventDefault;
@@ -55,22 +55,26 @@ fetch(`http://localhost:3000/api/products/${id}`)
             }else if (userQuantityValue.value > 100 ) {
                 alert("Merci de choisir une quantité entre 1 et 100");
             }else{
-                addToCart(productsData, userColorValue.value, userQuantityValue.value);
+                addToCart(productData, productData.name, userColorValue.value, productData.imageUrl, productData.altTxt, productData.description, userQuantityValue.value);
             } 
         
         });
        
     }
-// entre parentheses??
 
-    const addToCart = (product, color, quantity) => {
+
+    const addToCart = (product, name, color, imageUrl, altTxt, description, quantity) => {
         if (!window.localStorage.getItem("userCart")) {
             window.localStorage.setItem("userCart", JSON.stringify([]));
         }
     
         const newProduct = {
             id: product._id,
+            name: name, 
             color: color,
+            image: imageUrl,
+            altText: altTxt,
+            description: description,
             quantity: parseInt (quantity, 10),
         };
 
@@ -431,7 +435,7 @@ fetch(`http://localhost:3000/api/products/${id}`)
 // //     console.log(e.target.value);
 // // })
 
-// // function validateCartInput (document, productsData) {
+// // function validateCartInput (document, productData) {
 // //     let errors = []
 
 //     // let selectedColor = document.getElementById("colors");
@@ -445,7 +449,7 @@ fetch(`http://localhost:3000/api/products/${id}`)
 // //     // valider couleur
 // //     if (!color) {
 // //         errors.push( new ValidationEntryError('Veuillez choisir une couleur'))
-// //     } else if (!productsData.colors.includes(color)) {
+// //     } else if (!productData.colors.includes(color)) {
 // //         errors.push( new ValidationEntryError('Couleur inconnue'))
 // //     }
 
@@ -464,7 +468,7 @@ fetch(`http://localhost:3000/api/products/${id}`)
 // //     throw err
 // //     }
 
-// // function handleAddToCart (document, productsData) {
+// // function handleAddToCart (document, productData) {
 
 // //     const button = getElementById('addToCart')
 
@@ -473,14 +477,14 @@ fetch(`http://localhost:3000/api/products/${id}`)
 
 // //     try {
 // //     // get validated input
-// //     const { color, quantity } = validateCartInput(document, productsData)
+// //     const { color, quantity } = validateCartInput(document, productData)
 
 // //     // WIP: feedback but nothing is save
 // //     const nexemplaires = quantity + ' exemplaire' + (quantity >= 2 ? 's' : '')
 
 // //     // indicate if cart is updated
 // //     if (saveToCart(data, color, acc => acc + quantity)) {
-// //         const message = `Le canapé ${productsData.name} ${productsData.color} a été ajouté en ${nexemplaires} à votre panier`
+// //         const message = `Le canapé ${productData.name} ${productData.color} a été ajouté en ${nexemplaires} à votre panier`
 
 // //         window.alert(message)
 // //     } else {

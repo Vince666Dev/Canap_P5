@@ -1,9 +1,9 @@
 fetch("http://localhost:3000/api/products")
-  .then((response) =>  response.json()
-  .then((productsData) => {
+  .then((response) =>  response.json())
+  .then((productData) => {
 
     let output = "";
-    for (let item of productsData) {
+    for (let item of productData) {
       output +=`
         <a href="./product.html?id=${item._id}">
           <article>
@@ -13,9 +13,9 @@ fetch("http://localhost:3000/api/products")
           </article>
         </a>`;
     }
-    document.getElementById("items").innerHTML = output;
+    document.querySelector("items").innerHTML = output;
   })
-);
+
   
 
 
