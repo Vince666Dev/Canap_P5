@@ -13,7 +13,7 @@ fetch("http://localhost:3000/api/products")
           </article>
         </a>`;
     }
-    document.querySelector("items").innerHTML = output;
+    document.querySelector("#items").innerHTML = output;
   })
 
   
