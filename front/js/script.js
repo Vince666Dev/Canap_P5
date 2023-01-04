@@ -1,10 +1,12 @@
+//  fetch pour récupération des articles dans l'API.
 fetch("http://localhost:3000/api/products")
   .then((response) =>  response.json())
   .then((productData) => {
 
-    let output = "";
+    // on créer le noeud html d'un article dans une boucle pour ajouter chaque article de l'API sur la page.
+    let itemNode = "";
     for (let item of productData) {
-      output +=`
+      itemNode +=`
         <a href="./product.html?id=${item._id}">
           <article>
             <img src="${item.imageUrl}" alt="${item.altTxt}">
@@ -13,9 +15,8 @@ fetch("http://localhost:3000/api/products")
           </article>
         </a>`;
     }
-    document.querySelector("#items").innerHTML = output;
+    document.querySelector("#items").innerHTML = itemNode;
   })
-
-  
+  .catch((error) => alert("Une erreur est survenue" + error));
 
 

@@ -1,5 +1,3 @@
-
-
 // récupération des données du local storage.
 const userCart = JSON.parse(window.localStorage.getItem("userCart"));
 
@@ -11,35 +9,36 @@ fetch("http://localhost:3000/api/products/")
 })
 .catch((error) => alert("Une erreur est survenue" + error));
 
-
 // fonction principale d'affichage des articles de la page panier.
 function displayCart (productData) {
     
     if (userCart === null){
-        alert("Aucun article dans le panier")
+        // si aucun article n'est présent dans le panier, on affiche que le panier est vide.
+        document.querySelector("h1").innerText = "Votre panier est vide";
     }else{
-        
-        // appel des fonctions principale de la page.
+        // sinon, on appelle les fonctions principale.
         showItems(productData);
         showTotalQuantityAndPrice(productData);
         changeQuantity();
         deleteItemBtn();
         
-        // Si panier vide, on supprime le tableau vide du localStorage. Puis retour à la page d'accueil.
+        // Si on vide le panier, on supprime le tableau vide du localStorage et on affiche à nouveau que le panier est vide.
         if (userCart.length === 0) {
             localStorage.removeItem("userCart");
-            alert('Panier vide, retour à l\'accueil.');
-            window.location.href = "index.html";
+            document.querySelector("h1").innerText = "Votre panier est vide";
         }   
     }
 }
 
-
-// fonction et boucle pour ajouter noeud HTML des articles au panier avec les spécificités des articles.
+// fonction et boucle pour afficher les articles du panier avec les spécificités des articles.
 function showItems (productData) {
     for(i = 0; i < userCart.length; i++ ) {
         const itemBloc = document.getElementById("cart__items");
+        
+        // variable qui va récupérer dans l'API les infos sur l'article au panier.
         const findProduct = productData.find((element) => element._id === userCart[i].id);   
+        
+        // ici on multiplie le prix de cet article par la quantité pour avoir le prix total de cet article.
         const totalProductQuantity = userCart[i].quantity;
         const totalProductPrice = findProduct.price * totalProductQuantity;  
         
@@ -70,28 +69,38 @@ function showItems (productData) {
     }
 }
 
-
-// fonction pour calculer et actualiser total du prix et quantité au panier.
+// fonction pour calculer, actualiser et afficher le prix et la quantité totale du panier.
 function showTotalQuantityAndPrice (productData) {
     let totalCartPrice = 0;
     let totalItemsQuantity = 0;
     
+    // boucle qui va parcourir chaque article du panier pour incrémenter le prix et la quantité totale.
     for(i = 0; i < userCart.length; i++) {
+        // variable qui va récupérer dans l'API les infos sur l'article au panier.
         const findProduct = productData.find((element) => element._id === userCart[i].id);
+        
+        // on incrémente le prix de l'article avec la quantité de celui-ci pour avoir le prix total dans une variable déclarée en dehors de la boucle.
         totalCartPrice += parseInt(findProduct.price * userCart[i].quantity);
+
+        // on incrémente la quantité de l'article pour avoir la quantité totale dans une variable déclarée en dehors de la boucle.
         totalItemsQuantity += parseInt(userCart[i].quantity);
+
+        // enfin on affiche les résultats quantité totale et prix total dans l'HTML.
         document.getElementById("totalQuantity").innerHTML = totalItemsQuantity;
         document.getElementById("totalPrice").innerHTML = totalCartPrice;
     }
 }
 
-
 // fonction pour changer la quantité d'un article depuis le panier et mettre à jour le local storage
 function changeQuantity () {
     for (i = 0; i < userCart.length; i ++) {
+        // variable pour cibler le produit avec la couleur dont on veux changer la quantité.
         const findProduct = userCart.find((product) => product.id === userCart[i].id && product.color === userCart[i].color);
+        
         const totalProductQuantity = document.querySelectorAll(".itemQuantity")
         totalProductQuantity.value = userCart[i].quantity;
+
+        // on ajoute une écoute lors du changement de la value de la quantité.
         totalProductQuantity[i].addEventListener("change", (event) => {
             const userValue = event.target.value;
             findProduct.quantity = parseInt(userValue, 10);
@@ -103,20 +112,26 @@ function changeQuantity () {
                 alert("Merci de choisir un nombre entier")
                 location.reload();
             }else{
+                // si les conditions de quantité sont remplies (un nombre entier compris entre 1 et 100), alors on actualise le local storage avec le reload.
                 localStorage.setItem("userCart", JSON.stringify(userCart));
-                location.reload(); // le reload va permettre de mettre à jour le localstorage
+                location.reload();
             }
         })
     }
 }
 
-
 // fonction et boucle pour bouton supprimer du panier
 function deleteItemBtn () {
     for (i = 0; i < userCart.length; i ++) {
+        // variable pour cibler le produit avec la couleur que l'on veux supprimer.
         const findProduct = userCart.find((element) => element.id === userCart[i].id && element.color === userCart[i].color);
+
+        // variable pour cibler tous les boutons supprimer.
         const deleteBtn = document.querySelectorAll(".deleteItem");
+
+        // on ajoute une écoute du click sur le bouton supprimer qui nous interesse.
         deleteBtn[i].addEventListener("click", () => {
+            // lorsque que l'on clique, on appelle la fonction "deleteFromUserCart" avec pour argument, le résultat de "findProduct".
             deleteFromUserCart(findProduct);
             alert(findProduct.name + " " + findProduct.color + " a bien été supprimé du panier.");
             location.reload();
@@ -124,18 +139,19 @@ function deleteItemBtn () {
     }
 }
 
-
 // fonction pour supprimer l'article cliqué (on prend bien en compte l'article avec la même couleur) et mettre à jour le localstorage.
 function deleteFromUserCart (product) {
-    const userCart = JSON.parse(window.localStorage.getItem("userCart")); // on peux supprimer ce parse? deja présent en haut de page
+    // on utilise splice pour supprimer le premier élément du résultat du findIndex, qui correspond à notre article a supprimer.
     userCart.splice(userCart.findIndex((v) => v.id === product.id && v.color === product.color), 1);
+
+    // on met a jour le localstorage.
     localStorage.setItem("userCart", JSON.stringify(userCart));
 }     
 
 
 // ************* FORMULAIRE DONNEES UTILISATEUR ***************
 
-// REGEX (Regular Expressions) caractères autorisés ou inderdits à la saisie.
+// REGEX (Regular Expressions), caractères autorisés ou inderdits à la saisie.
 let nameRegEx = /^[a-zA-Z\-çñàéèêëïîôüù ]{2,}$/;
 let addressRegEx = /^[0-9a-zA-Z\s,.'-çñàéèêëïîôüù]{3,}$/;
 let emailRegEx = /^[A-Za-z0-9\-\.]+@([A-Za-z0-9\-]+\.)+[A-Za-z0-9-]{2,}$/;
@@ -212,9 +228,12 @@ form.email.addEventListener("change", (event) => {
 let order = document.getElementById("order");
 order.addEventListener("click", (e) => {
     e.preventDefault();
-
-    // avant d'envoyer le formulaire, on demande que toutes les validations soient remplies.
-    if(nameRegEx.test(firstName.value) && 
+    
+    // avant d'envoyer le formulaire, on demande que toutes les validations soient remplies (toutes les inputs remplis et vérifiés et au moins 1 article au panier).
+    if (userCart === null) {
+        alert("Aucun article dans le panier");
+    
+    }else if(nameRegEx.test(firstName.value) && 
     nameRegEx.test(lastName.value) &&
     addressRegEx.test(address.value) &&
     nameRegEx.test(city.value) &&
@@ -225,7 +244,7 @@ order.addEventListener("click", (e) => {
     city.value != null &&
     email.value != null) {
 
-        // on crée un objet, le formulaire de contact utilisateur.
+        // si les infos sont valides, on crée un objet, le formulaire de contact utilisateur.
         let contact = {
             firstName: firstName.value,
             lastName: lastName.value,
@@ -235,20 +254,15 @@ order.addEventListener("click", (e) => {
         };
         
         // on crée un nouveau tableau contenant uniquement les ID's des produits au panier.
-        let products = [];
-        userCart.forEach((order) => {
-            products.push(order.id);
-        });
+        let products = userCart.map(product => product.id);
 
         // on crée un nouvel objet contenant le tableau des Id's des produits au panier et l'objet formulaire utilisateur, complété.
         let order = {
             contact,
             products,
         };
-        console.log(order);
     
-
-        // Fetch POST pour envoyer les infos de la commande au serveur et récupérer un id de commande dans l'URL de la page confirmation.
+        // on fait un Fetch POST pour envoyer les infos de la commande au serveur et générer un id de commande dans l'URL de la page confirmation.
         fetch("http://localhost:3000/api/products/order", {
             method: "POST",
             headers: {
@@ -268,6 +282,6 @@ order.addEventListener("click", (e) => {
     
     // Si le formulaire n'est pas correctement rempli.
     }else{
-        alert("Merci de remplir le formulaire")
+        alert("Merci de bien remplir le formulaire");
     }
 });
