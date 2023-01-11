@@ -230,7 +230,7 @@ order.addEventListener("click", (e) => {
     e.preventDefault();
     
     // avant d'envoyer le formulaire, on demande que toutes les validations soient remplies (toutes les inputs remplis et vérifiés et au moins 1 article au panier).
-    if (userCart === null) {
+    if (userCart == null) {
         alert("Aucun article dans le panier");
     
     }else if(nameRegEx.test(firstName.value) && 

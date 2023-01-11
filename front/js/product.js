@@ -43,10 +43,12 @@ function addToCartValidation(productData) {
 
         if(userColorValue.value === "") {
             alert("Merci de sélectionner une couleur");
-        }else if (userQuantityValue.value <= 0 ) {
+        }else if(userQuantityValue.value <= 0 ) {
             alert("Merci de choisir au moins 1 article");
-        }else if (userQuantityValue.value > 100 ) {
+        }else if(userQuantityValue.value > 100 ) {
             alert("Merci de choisir une quantité entre 1 et 100");
+        }else if(userQuantityValue.value != parseInt (userQuantityValue.value, 10)) {
+            alert("Merci de choisir un nombre entier");
         }else{
             addToCart(productData, productData.name, userColorValue.value, productData.imageUrl, productData.altTxt, productData.description, userQuantityValue.value);
         }
