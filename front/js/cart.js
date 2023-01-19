@@ -19,7 +19,7 @@ function displayCart (productData) {
         // sinon, on appelle les fonctions principale.
         showItems(productData);
         showTotalQuantityAndPrice(productData);
-        changeQuantity();
+        changeQuantity(productData);
         deleteItemBtn();
         
         // Si on vide le panier, on supprime le tableau vide du localStorage et on affiche à nouveau que le panier est vide.
@@ -30,9 +30,25 @@ function displayCart (productData) {
     }
 }
 
+// fonction qui va mettre à jour sur l'application le prix total de l'article et les prix et quantités totaux du panier.
+function reloadCart(productData) {
+    const userCart = JSON.parse(window.localStorage.getItem("userCart"));
+    let totalCartPrice = 0;
+    let totalItemsQuantity = 0;
+    for(i = 0; i < userCart.length; i++ ) {
+        const findProduct = productData.find((element) => element._id === userCart[i].id);   
+        totalItemsQuantity += userCart[i].quantity;
+        totalCartPrice += findProduct.price * userCart[i].quantity;
+        document.getElementById("prix_" + i).innerHTML = findProduct.price * userCart[i].quantity + " €";
+    }
+    document.getElementById("totalQuantity").innerHTML = totalItemsQuantity;
+    document.getElementById("totalPrice").innerHTML = totalCartPrice;
+}
+
 // fonction et boucle pour afficher les articles du panier avec les spécificités des articles.
 function showItems (productData) {
     for(i = 0; i < userCart.length; i++ ) {
+        const userCart = JSON.parse(window.localStorage.getItem("userCart"));
         const itemBloc = document.getElementById("cart__items");
         
         // variable qui va récupérer dans l'API les infos sur l'article au panier.
@@ -52,7 +68,7 @@ function showItems (productData) {
                 <div class="cart__item__content__description">
                     <h2>${userCart[i].name}</h2>
                     <p>${userCart[i].color}</p>
-                    <p>${totalProductPrice}€</p>
+                    <p id="prix_${i}">${totalProductPrice}€</p>
                 </div>
                 <div class="cart__item__content__settings">
                     <div class="cart__item__content__settings__quantity">
@@ -92,29 +108,34 @@ function showTotalQuantityAndPrice (productData) {
 }
 
 // fonction pour changer la quantité d'un article depuis le panier et mettre à jour le local storage
-function changeQuantity () {
+function changeQuantity (productData) {
     for (i = 0; i < userCart.length; i ++) {
         // variable pour cibler le produit avec la couleur dont on veux changer la quantité.
         const findProduct = userCart.find((product) => product.id === userCart[i].id && product.color === userCart[i].color);
         
-        const totalProductQuantity = document.querySelectorAll(".itemQuantity")
+        let totalProductQuantity = document.querySelectorAll(".itemQuantity")
         totalProductQuantity.value = userCart[i].quantity;
 
         // on ajoute une écoute lors du changement de la value de la quantité.
         totalProductQuantity[i].addEventListener("change", (event) => {
-            const userValue = event.target.value;
+            let userValue = event.target.value;
             findProduct.quantity = parseInt(userValue, 10);
-
+            
             if (userValue <= 0 || userValue > 100) {
-                alert("Merci de sélectionner une quantité entre 1 et 100")
+                alert("Merci de sélectionner une quantité entre 1 et 100");
                 location.reload();
+                return
+
             }else if (userValue != parseInt(userValue, 10)) {
                 alert("Merci de choisir un nombre entier")
                 location.reload();
+                return
+
             }else{
                 // si les conditions de quantité sont remplies (un nombre entier compris entre 1 et 100), alors on actualise le local storage avec le reload.
                 localStorage.setItem("userCart", JSON.stringify(userCart));
-                location.reload();
+                reloadCart(productData);
+                showTotalQuantityAndPrice(productData);
             }
         })
     }

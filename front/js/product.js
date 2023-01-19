@@ -76,6 +76,7 @@ function addToCart(product, name, color, imageUrl, altTxt, description, quantity
 
     // on parse le panier du localstorage pour récupérer les infos.
     const userCart = JSON.parse(window.localStorage.getItem("userCart"));
+
     
     // conditions pour ne pas faire de doublons dans le panier et pouvoir ajuster la quantité:
     // Si aucun element du panier n'a le même ID que l'article à ajouter, alors on push cet article.
@@ -87,9 +88,24 @@ function addToCart(product, name, color, imageUrl, altTxt, description, quantity
         if (idFilter.every((element) => element.color !== newProduct.color)) {
             userCart.push(newProduct);
         }else{
-            // si l'article est déjà présent dans le localstorage et qu'il a la même couleur, on va seulement ajuster (incrémenter) sa quantité.
+            // Sinon si l'article est déjà présent dans le localstorage et qu'il a la même couleur, on va seulement ajuster (incrémenter) sa quantité en vérifiant ci dessous si les quantités restantes le permettent.
             const sameColorFilter = userCart.findIndex((element) => element.id === newProduct.id && element.color === newProduct.color);
-            userCart[sameColorFilter].quantity += newProduct.quantity;
+            
+            // si la quantité de cet article au panier est de 100, on informe l'utilisateur que la quantité max est atteinte.
+            if(userCart[sameColorFilter].quantity === 100){
+                alert("Vous avez atteint la quantité maximale de commande pour cet article qui est de 100.");
+                return
+        
+            // si la quantité de l'article au panier + la quantité utilisateur dépasse 100, on informe l'utilisateur combien d'exemplaires il peut encore commander.
+            }else if(userCart[sameColorFilter].quantity + newProduct.quantity > 100) {
+                const QuantityMaxRemain = ( 100 - (userCart[sameColorFilter].quantity));
+                alert("Vous ne pouvez ajouter que" + " " + QuantityMaxRemain + " exemplaire(s) de cet article car la quantité maximale de commande est de 100.");
+                return
+            
+            // Si la quantité totale n'excède pas 100, on incrémente seulement la quantité au localStorage.
+            }else{
+                userCart[sameColorFilter].quantity += newProduct.quantity;
+            }
         }
     }
 
